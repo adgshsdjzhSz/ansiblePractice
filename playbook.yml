@@ -1,0 +1,35 @@
+- name: Setup Web Server
+  hosts: all
+  become: yes
+  tasks:
+    - name: Create ansible-worker user
+      user:
+        name: ansible-worker
+        state: present
+        
+    - name: Install git
+      package:
+        name: git
+        state: present
+
+    - name: Copy SSH keys
+      copy:
+        src: ssh_keys/
+        dest: /home/ansible-worker/.ssh/ 
+        mode: '0700'
+      ignore_errors: no
+
+    - name: Install Nginx
+      package:
+        name: nginx
+        state: present
+    
+    - name: Copy Nginx config file in sites-available
+      copy:
+        src: config_file/ansible.iphilka.ru.conf
+        dest: /etc/nginx/sites-available/
+    - name: Create symbol link in sites-enabled
+      file:
+        src: /etc/nginx/sites-available/ansible.iphilka.ru.conf
+        dest: /etc/nginx/sites-enabled/ansible.iphilka.ru.conf
+        state: link
